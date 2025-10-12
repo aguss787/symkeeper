@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.1](https://github.com/aguss787/symkeeper/compare/v0.2.0...v0.2.1) - 2025-10-12
+
+### Added
+
+- add lock file to keep track of managed symlinks
+- add help text for commands
+- add --version
+
+### Other
+
+- *(README)* add installation step
+
 ## [0.2.0](https://github.com/aguss787/symkeeper/compare/v0.1.0...v0.2.0) - 2025-10-12
 
 ### Added
