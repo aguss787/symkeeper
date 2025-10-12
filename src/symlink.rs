@@ -11,6 +11,10 @@ impl<T> Symlink<T> {
     pub(crate) fn target(&self) -> &T {
         &self.target
     }
+
+    pub(crate) fn link(&self) -> &T {
+        &self.link
+    }
 }
 
 impl Symlink<&str> {
