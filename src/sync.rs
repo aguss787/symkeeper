@@ -18,7 +18,8 @@ pub(crate) fn run(fs: Fs, config: Config) -> Result<()> {
     let missing_targets = symlinks
         .iter()
         .map(Symlink::target)
-        .filter_map(|target| (!target.exists()).then(|| target.to_owned_string_lossy()))
+        .filter(|target| !target.exists())
+        .map(|target| target.to_owned_string_lossy())
         .collect::<HashSet<_>>();
     if !missing_targets.is_empty() {
         return Err(Error::TargetFileNotExist(missing_targets));

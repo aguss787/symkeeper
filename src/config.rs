@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use std::{collections::HashMap, path::PathBuf};
 
 use serde::Deserialize;
 
@@ -13,21 +13,23 @@ pub(crate) struct Config {
 pub(crate) struct Symlinks(HashMap<String, String>);
 
 impl Config {
-    pub(crate) fn load() -> Result<Self> {
-        let config_path = std::env::current_dir()
-            .map_err(Error::load_config)?
-            .join("symkeeper.toml");
-        let toml = std::fs::read_to_string(config_path).map_err(Error::load_config)?;
-        Self::load_from_str(&toml)
-    }
+    pub(crate) fn load(config_file: Option<PathBuf>) -> Result<Self> {
+        let config_file = config_file.map_or_else(
+            || {
+                std::env::current_dir()
+                    .map(|current_dir| current_dir.join(".config"))
+                    .map_err(Error::load_config)
+            },
+            Ok,
+        )?;
 
-    fn load_from_str(toml: &str) -> Result<Self> {
+        let toml = std::fs::read_to_string(config_file).map_err(Error::load_config)?;
         toml::from_str(&toml).map_err(Error::load_config)
     }
 }
 
 impl Symlinks {
-    pub(crate) fn iter<'a>(&'a self) -> impl Iterator<Item = Symlink<&'a str>> {
+    pub(crate) fn iter(&self) -> impl Iterator<Item = Symlink<&str>> {
         self.0.iter().map(|(link, target)| Symlink {
             target: target.as_str(),
             link: link.as_str(),
@@ -40,13 +42,19 @@ mod tests {
     use super::*;
 
     #[test]
+    fn test_load_config() {
+        let config_1 = Config::load(Some("fixtures/config_1.toml".into())).unwrap();
+        assert_eq!(config_1.symlinks.0.len(), 1);
+        assert_eq!(config_1.symlinks.0["foo"], "bar");
+
+        let config_2 = Config::load(Some("fixtures/config_2.toml".into())).unwrap();
+        assert_eq!(config_2.symlinks.0.len(), 1);
+        assert_eq!(config_2.symlinks.0["foo_2"], "bar_2");
+    }
+
+    #[test]
     fn test_duplicate_symlinks() {
-        let raw = r#"
-            [symlinks]
-            "foo" = "bar"
-            "foo" = "baz"
-        "#;
-        let err = Config::load_from_str(raw).unwrap_err();
+        let err = Config::load(Some("fixtures/duplicate_symlinks.toml".into())).unwrap_err();
         assert!(err.to_string().contains("duplicate key"), "{}", err);
     }
 }

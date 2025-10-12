@@ -6,6 +6,8 @@ mod prelude;
 mod symlink;
 mod sync;
 
+use std::path::PathBuf;
+
 use clap::{Parser, Subcommand};
 
 use crate::prelude::*;
@@ -14,6 +16,8 @@ use crate::prelude::*;
 struct CliArgs {
     #[arg(short, long)]
     dry_run: bool,
+    #[arg(short = 'f', long)]
+    config: Option<PathBuf>,
     #[command(subcommand)]
     command: Command,
 }
@@ -32,7 +36,7 @@ fn main() {
 }
 
 fn inner(args: CliArgs) -> Result<()> {
-    let config = config::Config::load()?;
+    let config = config::Config::load(args.config)?;
     let fs = fs::Fs::new(args.dry_run);
     match args.command {
         Command::Sync => sync::run(fs, config)?,
