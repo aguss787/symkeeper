@@ -6,8 +6,7 @@ use crate::prelude::*;
 ///
 /// Logic flow:
 /// - Check if all source files exist
-/// - Remove all existing file/symlinks
-/// - Create symlinks
+/// - Create or replace symlinks
 ///     - Make sure parent directories exist
 pub(crate) fn run(config: Config) -> Result<()> {
     let symlinks = config
@@ -25,15 +24,13 @@ pub(crate) fn run(config: Config) -> Result<()> {
         return Err(Error::TargetFileNotExist(missing_targets));
     }
 
-    for Symlink { link, .. } in &symlinks {
+    for Symlink { target, link } in symlinks {
         if link.exists() {
             println!("Removing existing file/symlink at {}", link.display());
-            std::fs::remove_dir_all(link)
+            std::fs::remove_dir_all(&link)
                 .map_err(|error| Error::FileCannotBeRemoved(link.to_owned_string_lossy(), error))?;
         }
-    }
 
-    for Symlink { target, link } in symlinks {
         let link_parent = link.parent();
         if let Some(link_parent) = link_parent {
             println!("Creating parent directory at {}", link_parent.display());
