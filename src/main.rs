@@ -25,7 +25,9 @@ struct CliArgs {
 
 #[derive(Debug, Subcommand)]
 enum Command {
+    /// Synchronize symlinks from config to filesystem
     Sync {
+        /// Overwrite existing symlinks
         #[arg(short, long)]
         force: bool,
     },
