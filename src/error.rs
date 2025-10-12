@@ -4,8 +4,10 @@ use std::collections::HashSet;
 pub(crate) enum Error {
     #[error("Failed to load config ({0}): {1}")]
     LoadConfig(String, anyhow::Error),
-    #[error("Source file does not exist:\n{}", format_missing_sources(.0))]
+    #[error("Source file does not exist:\n{}", format_files(.0))]
     TargetFileNotExist(HashSet<String>),
+    #[error("Symlink already exists, use --force to overwrite:\n{}", format_files(.0))]
+    SymlinkExists(HashSet<String>),
     #[error("Failed to remove existing file/symlink at {0}: {1}")]
     FileCannotBeRemoved(String, std::io::Error),
     #[error("Failed to create parent directory at {0}: {1}")]
@@ -28,7 +30,7 @@ impl Error {
     }
 }
 
-fn format_missing_sources<'a>(missing_sources: impl IntoIterator<Item = &'a String>) -> String {
+fn format_files<'a>(missing_sources: impl IntoIterator<Item = &'a String>) -> String {
     missing_sources
         .into_iter()
         .map(|s| format!("- {}", s))

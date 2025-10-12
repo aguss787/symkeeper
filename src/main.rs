@@ -24,7 +24,10 @@ struct CliArgs {
 
 #[derive(Debug, Subcommand)]
 enum Command {
-    Sync,
+    Sync {
+        #[arg(short, long)]
+        force: bool,
+    },
 }
 
 fn main() {
@@ -39,7 +42,9 @@ fn inner(args: CliArgs) -> Result<()> {
     let config = config::Config::load(args.config)?;
     let fs = fs::Fs::new(args.dry_run);
     match args.command {
-        Command::Sync => sync::run(fs, config)?,
+        Command::Sync { force } => {
+            sync::SyncRunner::new(fs, force).run(config)?;
+        }
     }
 
     Ok(())
