@@ -4,9 +4,7 @@ Symlink management tool.
 
 ## TODO
 
-- [ ] Add option to specify config file
-- [ ] Do not remove existing file/symlink by default
-- [ ] Add option to force remove existing file/symlink
 - [ ] Backup command
-- [ ] Add option to disable symlink
-  - When a symlink is disabled, it will be removed
+- [ ] Write a lock file to record managed symlinks
+- [ ] Remove symlinks from filesystem if they are in the lock file, but not in the config
+- [ ] Try to restore symlinks from lock file if the current sync fails
