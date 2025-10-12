@@ -1,13 +1,19 @@
-use std::collections::HashSet;
+use std::collections::BTreeSet;
 
 #[derive(Debug, thiserror::Error)]
 pub(crate) enum Error {
-    #[error("Failed to load config ({0}): {1}")]
+    #[error("Failed to load config at {0}: {1}")]
     LoadConfig(String, anyhow::Error),
+    #[error("Failed to load lock file, remove \"{0}\" and run `sync` to regenerate it: {1}")]
+    LoadLockFile(String, anyhow::Error),
+    #[error("Failed to save lock file at {0}: {1}")]
+    SaveLockFile(String, anyhow::Error),
     #[error("Source file does not exist:\n{}", format_files(.0))]
-    TargetFileNotExist(HashSet<String>),
+    TargetFileNotExist(BTreeSet<String>),
     #[error("Symlink already exists, use --force to overwrite:\n{}", format_files(.0))]
-    SymlinkExists(HashSet<String>),
+    SymlinkExists(BTreeSet<String>),
+    #[error("Failed to inspect symlink at {0}: {1}")]
+    FailedToInspectSymlink(String, std::io::Error),
     #[error("Failed to remove existing file/symlink at {0}: {1}")]
     FileCannotBeRemoved(String, std::io::Error),
     #[error("Failed to create parent directory at {0}: {1}")]

@@ -1,10 +1,11 @@
+mod cmds;
 mod config;
 mod error;
 mod fs;
+mod lock_file;
 mod path_ext;
 mod prelude;
 mod symlink;
-mod sync;
 
 use std::path::PathBuf;
 
@@ -42,11 +43,12 @@ fn main() {
 }
 
 fn inner(args: CliArgs) -> Result<()> {
-    let config = config::Config::load(args.config)?;
+    let (config, lock_file_path) = config::Config::load(args.config)?;
     let fs = fs::Fs::new(args.dry_run);
     match args.command {
         Command::Sync { force } => {
-            sync::SyncRunner::new(fs, force).run(config)?;
+            cmds::sync::SyncRunner::new(&fs, &lock_file_path, force).run(config)?;
+            cmds::clean::CleanRunner::new(&fs, &lock_file_path).run()?;
         }
     }
 

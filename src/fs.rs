@@ -1,4 +1,4 @@
-use std::path::Path;
+use std::path::{Path, PathBuf};
 
 use crate::prelude::*;
 
@@ -51,5 +51,20 @@ impl Fs {
                 error,
             })
         }
+    }
+
+    pub(crate) fn symlink_target(&self, link: impl AsRef<Path>) -> Result<Option<PathBuf>> {
+        let link = link.as_ref();
+        let metadata = link
+            .symlink_metadata()
+            .map_err(|error| Error::FailedToInspectSymlink(link.to_owned_string_lossy(), error))?;
+
+        if !metadata.is_symlink() {
+            return Ok(None);
+        }
+
+        link.read_link()
+            .map(Some)
+            .map_err(|error| Error::FailedToInspectSymlink(link.to_owned_string_lossy(), error))
     }
 }
