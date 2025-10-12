@@ -1,4 +1,4 @@
-use std::{collections::HashSet, path::Path};
+use std::collections::HashSet;
 
 use crate::prelude::*;
 
@@ -8,7 +8,7 @@ use crate::prelude::*;
 /// - Check if all source files exist
 /// - Create or replace symlinks
 ///     - Make sure parent directories exist
-pub(crate) fn run(config: Config) -> Result<()> {
+pub(crate) fn run(fs: Fs, config: Config) -> Result<()> {
     let symlinks = config
         .symlinks
         .iter()
@@ -27,16 +27,13 @@ pub(crate) fn run(config: Config) -> Result<()> {
     for Symlink { target, link } in symlinks {
         if link.exists() {
             println!("Removing existing file/symlink at {}", link.display());
-            std::fs::remove_dir_all(&link)
-                .map_err(|error| Error::FileCannotBeRemoved(link.to_owned_string_lossy(), error))?;
+            fs.remove_dir_all(&link)?;
         }
 
         let link_parent = link.parent();
         if let Some(link_parent) = link_parent {
             println!("Creating parent directory at {}", link_parent.display());
-            std::fs::create_dir_all(link_parent).map_err(|error| {
-                Error::FailedToCreateParentDir(link_parent.to_owned_string_lossy(), error)
-            })?;
+            fs.create_dir_all(link_parent)?;
         }
 
         println!(
@@ -44,24 +41,8 @@ pub(crate) fn run(config: Config) -> Result<()> {
             link.display(),
             target.display()
         );
-        std::os::unix::fs::symlink(&target, &link).map_err(|error| {
-            Error::FailedToCreateSymlink {
-                link: link.to_owned_string_lossy(),
-                target: target.to_owned_string_lossy(),
-                error,
-            }
-        })?;
+        fs.symlink(&target, &link)?;
     }
 
     Ok(())
-}
-
-trait PathExt {
-    fn to_owned_string_lossy(&self) -> String;
-}
-
-impl PathExt for Path {
-    fn to_owned_string_lossy(&self) -> String {
-        self.to_string_lossy().to_string()
-    }
 }
