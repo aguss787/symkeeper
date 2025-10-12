@@ -2,6 +2,12 @@
 
 Symlink management tool.
 
+## Installation
+
+```bash
+cargo install symkeeper --locked
+```
+
 ## TODO
 
 - [ ] Backup command
