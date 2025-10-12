@@ -13,6 +13,7 @@ use clap::{Parser, Subcommand};
 use crate::prelude::*;
 
 #[derive(Debug, Parser)]
+#[command(version, about)]
 struct CliArgs {
     #[arg(short, long)]
     dry_run: bool,
