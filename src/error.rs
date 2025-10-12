@@ -2,8 +2,8 @@ use std::collections::HashSet;
 
 #[derive(Debug, thiserror::Error)]
 pub(crate) enum Error {
-    #[error("Failed to load config: {0}")]
-    LoadConfig(anyhow::Error),
+    #[error("Failed to load config ({0}): {1}")]
+    LoadConfig(String, anyhow::Error),
     #[error("Source file does not exist:\n{}", format_missing_sources(.0))]
     TargetFileNotExist(HashSet<String>),
     #[error("Failed to remove existing file/symlink at {0}: {1}")]
@@ -23,8 +23,8 @@ pub(crate) enum Error {
 pub(crate) type Result<T> = std::result::Result<T, Error>;
 
 impl Error {
-    pub(crate) fn load_config(err: impl Into<anyhow::Error>) -> Self {
-        Self::LoadConfig(err.into())
+    pub(crate) fn load_config(file: impl ToString, err: impl Into<anyhow::Error>) -> Self {
+        Self::LoadConfig(file.to_string(), err.into())
     }
 }
 
