@@ -1,0 +1,6 @@
+[symlinks]
+"/tmp/patch.2" = "/tmp/patch"
+"/tmp/patch.3" = "/tmp/patch"
+"/tmp/patches/patch.2" = "/tmp/patch"
+"/tmp/patches/patch.3" = "/tmp/patch"
+
